@@ -1,17 +1,16 @@
 from re import search,match, IGNORECASE
 
-def shorten(html: str)-> str:
-    """_shorten url_
+def shorten(endpoint: str)-> str:
+    """_Create a url to a youtube video given the endpoint_
 
     Args:
-        html (str): _url in str form_
+        endpoint (str): _str identifying the youtube video_
 
     Returns:
-        str: _a shorter url_
+        str: _a shorter url prefixed with https://youtu.be/_
     """
-    if 'www' in html:
-        html =html.replace("www.","")
-    return html.replace(".com/embed","")
+    return f"https://youtu.be/{endpoint}"
+   
 
 def parse(html: str)-> str:
     """_Given html content find the webpage url and extract it_
@@ -23,14 +22,12 @@ def parse(html: str)-> str:
         str: _Shorter url for the page_
     """
     
-    pattern = r"(?P<url>(?:http|https)://(www\.)?youtube\.com/embed/[a-z0-9]+)"
+    pattern = r"<iframe.+src=\"(?:http|https)://(www\.)?youtube\.com/embed/(?P<endpoint>[a-z0-9]+)\".+>"
 
-    url = result.group('url') if (result := search(pattern=pattern, string=html, flags=IGNORECASE)) else None
-    return shorten(html=url) if url else None
+    url = result.group('endpoint') if (result := search(pattern=pattern, string=html, flags=IGNORECASE)) else None
+    return shorten(endpoint=url) if url else None
 def main()-> None:
-    long='<iframe width="560" height="315" src="http://youtube.com/embed/xvFZjo5PgG0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
-
-    print(parse(html=long))
+    print(parse(input("HTML: ")))
 
 if __name__ == "__main__":
     main()
